@@ -21,6 +21,7 @@ namespace API
             });
 
             builder.Services.AddScoped<IProductRepository, ProductRepository>();
+            builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>)); //dependancy injection of generic services.
 
             var app = builder.Build();
 
