@@ -1,3 +1,33 @@
+
+@use '@angular/material' as mat;
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+// $customTheme: mat.light-theme(); //to define theme
+
+// @include mat.core(); //to include all of the core styles
+
+// //Then create class for custom theme
+// .custom-theme {
+//     @include mat.all-component-theme($customTheme);
+
+//     //override button styles
+//     .mdc-button, .mdc-raised-button, .mdc-stroked-button, .mdc-flat-button {
+//         @apply rounded-md
+//     }
+// }
+
+.custom-theme {
+    // @include mat.all-component-theme();
+    .mdc-button, .mdc-raised-button, .mdc-stroked-button, .mdc-flat-button {
+        @apply rounded-md
+    }
+}
+
+.container {
+    @apply mx-auto max-w-[90%]
+}
+
+// @apply mx-auto max-w-screen-2xl
