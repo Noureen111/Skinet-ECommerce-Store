@@ -16,7 +16,7 @@ export class ShopService {
   brands: string[] = [];
   
 
-  getProducts(types?: string[], brands?: string[]) {
+  getProducts(types?: string[], brands?: string[], sort?: string) {
 
     let params = new HttpParams();
     if(types && types.length > 0) {
@@ -25,6 +25,10 @@ export class ShopService {
 
     if(brands && brands.length > 0) {
       params = params.append("brands", brands.join(","));
+    }
+
+    if(sort){
+      params = params.append("sort", sort);
     }
 
     params = params.append("pageSize", 20);
