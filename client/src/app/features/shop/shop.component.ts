@@ -6,28 +6,38 @@ import { MatDialog } from '@angular/material/dialog';
 import { FiltersDialogComponent } from './filters-dialog/filters-dialog.component';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
-import {MatMenuModule} from '@angular/material/menu';
+import { MatMenuModule } from '@angular/material/menu';
 import { MatSelectChange, MatSelectModule } from '@angular/material/select';
+import { ShopParams } from '../../shared/models/ShopParams';
+import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
+import { Pagination } from '../../shared/models/Pagination';
+import { FormsModule } from '@angular/forms';
 
 
 @Component({
   selector: 'app-shop',
   standalone: true,
-  imports: [ProductItemComponent, MatIconModule, MatButtonModule, MatMenuModule, MatSelectModule],
+  imports: [
+    ProductItemComponent, 
+    MatIconModule, 
+    MatButtonModule, 
+    MatMenuModule, 
+    MatSelectModule, 
+    MatPaginatorModule,
+    FormsModule
+  ],
   templateUrl: './shop.component.html',
   styleUrl: './shop.component.scss'
 })
 export class ShopComponent {
-  products: Product[] = [];
-  selectedTypes: string[] = [];
-  selectedBrands: string[] = [];
-
-  selectedSort: string = "name";
+  products?: Pagination<Product>;
   sortOptions = [
     {name: "Alphabetical", value: "name"},
     {name: "Low-High", value: "priceAsc"},
     {name: "Hight-Low", value: "priceDesc"}
   ];
+  pageSizeOptions = [5, 10, 15, 20];
+  shopParams: ShopParams = new ShopParams();
 
   constructor(
     private shopService: ShopService,
@@ -42,16 +52,30 @@ export class ShopComponent {
   }
 
   getProducts() {
-    this.shopService.getProducts(this.selectedTypes, this.selectedBrands, this.selectedSort).subscribe({
-      next: response => this.products = response.data,
+    this.shopService.getProducts(this.shopParams).subscribe({
+      next: response => this.products = response,
       error: error => console.log(error)
     });
+  }
+
+  onSearchChange() {
+    debugger
+    this.shopParams.pageNumber = 1;
+    this.getProducts();
+  }
+
+  handlePageEvent(event: PageEvent) {
+    this.shopParams.pageNumber = event.pageIndex + 1;
+    this.shopParams.pageSize = event.pageSize;
+
+    this.getProducts();
   }
 
   onSortChange(event: MatSelectChange) {
     const selectedOption = event.value;
     if(selectedOption) {
-      this.selectedSort = selectedOption;
+      this.shopParams.sort = selectedOption;
+      this.shopParams.pageNumber = 1;
       console.log(selectedOption);
       this.getProducts(); 
     }
@@ -62,8 +86,8 @@ export class ShopComponent {
       minWidth: '500px',
       minHeight: '500px',
       data: {
-        selectedTypes: this.selectedTypes,
-        selectedBrands: this.selectedBrands
+        selectedTypes: this.shopParams.types,
+        selectedBrands: this.shopParams.brands
       }
     });
 
@@ -71,8 +95,9 @@ export class ShopComponent {
       next: result => {
         if(result) {
           console.log(result);
-          this.selectedTypes = result.selectedTypes;
-          this.selectedBrands = result.selectedBrands;
+          this.shopParams.brands = result.selectedTypes;
+          this.shopParams.types = result.selectedBrands;
+          this.shopParams.pageNumber = 1;
           this.getProducts();
         }
       }
