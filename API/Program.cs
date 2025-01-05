@@ -2,7 +2,9 @@
 using API.Middleware;
 using Core.Interfaces;
 using Infrastructure.Data;
+using Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
+using StackExchange.Redis;
 
 namespace API
 {
@@ -20,6 +22,17 @@ namespace API
             {
                 options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
             });
+
+            builder.Services.AddSingleton<IConnectionMultiplexer>(config =>
+            {
+                var connectionString = builder.Configuration.GetConnectionString("Redis")
+                ?? throw new Exception("Cannot get redis connection string");
+                var configuration = ConfigurationOptions.Parse(connectionString, true);
+                return ConnectionMultiplexer.Connect(configuration);
+                
+            });
+
+            builder.Services.AddSingleton<ICartService, CartService>();
 
             builder.Services.AddScoped<IProductRepository, ProductRepository>();
             builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>)); //dependancy injection of generic services.
