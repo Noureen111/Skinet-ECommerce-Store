@@ -23,7 +23,6 @@ export class CartService {
   }
 
   setCart(cart: Cart) {
-    debugger
     return this.httpClient.post<Cart>(this.baseUrl + "cart", cart).subscribe({
       next: cart => this.cart.set(cart),
       error: err => console.log(err)
@@ -31,7 +30,6 @@ export class CartService {
   }
 
   addItemToCart(item: CartItem | Product, quantity = 1) {
-    debugger
     const cart = this.cart() ?? this.createCart();
     if(this.isProduct(item)) {
       item = this.mapProductToCartItem(item);
