@@ -9,7 +9,7 @@
             <p class="font-light">{{product.price | currency}}</p>
         </mat-card-content>
         <mat-card-actions>
-            <button mat-stroked-button class="w-full">
+            <button mat-stroked-button class="w-full" (click)="addItemToCart(product)">
                 <mat-icon>add_shopping_cart</mat-icon>
                 Add To Cart
             </button>

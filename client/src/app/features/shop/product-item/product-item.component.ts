@@ -5,6 +5,7 @@ import { CurrencyPipe } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { RouterLink } from '@angular/router';
+import { CartService } from '../../../core/services/cart.service';
 
 @Component({
   selector: 'app-product-item',
@@ -22,4 +23,12 @@ import { RouterLink } from '@angular/router';
 export class ProductItemComponent {
 
   @Input() product?: Product;
+
+  constructor(
+    public cartService: CartService
+  ) {}
+
+  addItemToCart(product: Product) {
+    this.cartService.addItemToCart(product);
+  }
 }
