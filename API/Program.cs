@@ -1,5 +1,6 @@
 
 using API.Middleware;
+using Core.Entities;
 using Core.Interfaces;
 using Infrastructure.Data;
 using Infrastructure.Services;
@@ -34,6 +35,9 @@ namespace API
 
             builder.Services.AddSingleton<ICartService, CartService>();
 
+            builder.Services.AddIdentityApiEndpoints<AppUser>()
+                .AddEntityFrameworkStores<StoreContext>();
+
             builder.Services.AddScoped<IProductRepository, ProductRepository>();
             builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>)); //dependancy injection of generic services.
             builder.Services.AddCors();
@@ -48,6 +52,7 @@ namespace API
             );
 
             app.MapControllers();
+            app.MapIdentityApi<AppUser>();
 
             try
             {
