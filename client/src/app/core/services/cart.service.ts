@@ -16,6 +16,20 @@ export class CartService {
     return this.cart()?.items.reduce((sum: number, item: CartItem) => sum + item.quantity, 0);
   })
 
+  totals = computed(() => {
+    const cart = this.cart();
+    if(!cart) return null;
+    const subtotal = cart.items.reduce((sum: number, item: CartItem) => sum + item.price * item.quantity, 0);
+    const shipping = 0;
+    const discount = 0;
+    return {
+      subtotal,
+      shipping,
+      discount,
+      total: subtotal + shipping - discount
+    };
+  })
+
   constructor(
     private httpClient: HttpClient 
   ) { }
@@ -44,6 +58,37 @@ export class CartService {
 
     cart.items = this.addOrUpdateCart(cart.items, item, quantity);
     this.setCart(cart);
+  }
+
+  removeItemFromCart(productId: number, quantity: number = 1) {
+    const cart = this.cart();
+    if(!cart) return;
+
+    const index = cart.items.findIndex(x => x.productId === productId);
+    if(index !== -1) {
+      if(cart.items[index].quantity > quantity) {
+        cart.items[index].quantity -= quantity;
+      }
+      else {
+        cart.items.splice(index, 1);
+      }
+
+      if(cart.items.length === 0) {
+        this.deleteCart();
+      }
+      else {
+        this.setCart(cart);
+      }
+    }
+  }
+
+  deleteCart() {
+    this.httpClient.delete(this.baseUrl + "cart?id=" + this.cart()?.id).subscribe({
+      next: () => {
+        localStorage.removeItem("Cart_id");
+        this.cart.set(null);
+      }
+    })
   }
 
   private addOrUpdateCart(items: CartItem[], item: CartItem, quantity: number): CartItem[] {
