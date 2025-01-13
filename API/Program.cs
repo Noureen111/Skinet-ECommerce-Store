@@ -52,7 +52,7 @@ namespace API
             );
 
             app.MapControllers();
-            app.MapIdentityApi<AppUser>();
+            app.MapGroup("api").MapIdentityApi<AppUser>();  //api/register
 
             try
             {
