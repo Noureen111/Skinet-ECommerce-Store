@@ -22,7 +22,7 @@ namespace API.Controllers
             var result = await signinManager.UserManager.CreateAsync(user, registerDto.Password);
             if (!result.Succeeded) return BadRequest(result.Errors);
 
-            return Ok("done");
+            return Ok();
         }
     }
 }
