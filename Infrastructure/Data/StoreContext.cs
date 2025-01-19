@@ -9,10 +9,18 @@ namespace Infrastructure.Data
     public class StoreContext(DbContextOptions options) : IdentityDbContext<AppUser>(options)
     {
         public DbSet<Product> Products { get; set; }
+        public DbSet<Address> Addresses { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(ProductConfiguration).Assembly);
+
+            modelBuilder.Entity<AppUser>()
+                .HasOne(x => x.Address)
+                .WithMany()
+                .HasForeignKey(x => x.AddressId)
+                .OnDelete(DeleteBehavior.Restrict) ;
         }
     }
 }
