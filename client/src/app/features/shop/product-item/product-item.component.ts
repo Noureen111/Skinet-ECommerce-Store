@@ -28,7 +28,8 @@ export class ProductItemComponent {
     public cartService: CartService
   ) {}
 
-  addItemToCart(product: Product) {
+  addItemToCart(event: any, product: Product) {
+    event.stopPropagation();
     this.cartService.addItemToCart(product);
   }
 }
