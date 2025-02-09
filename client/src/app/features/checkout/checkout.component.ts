@@ -5,7 +5,13 @@ import { MatButton } from '@angular/material/button';
 import { RouterLink } from '@angular/router';
 import { StripeService } from '../../core/services/stripe.service';
 import { SnackbarService } from '../../core/services/snackbar.service';
-import { StripeAddressElement } from '@stripe/stripe-js';
+import { StripeAddressElement, StripeCardElement } from '@stripe/stripe-js';
+import { MatCheckboxChange, MatCheckboxModule } from '@angular/material/checkbox';
+import { StepperSelectionEvent } from '@angular/cdk/stepper';
+import { Address } from '../../shared/models/User';
+import { AccountService } from '../../core/services/account.service';
+import { firstValueFrom } from 'rxjs';
+import { CheckoutDeliveryComponent } from "./checkout-delivery/checkout-delivery.component";
 
 @Component({
   selector: 'app-checkout',
@@ -14,26 +20,66 @@ import { StripeAddressElement } from '@stripe/stripe-js';
     OrderSummaryComponent,
     MatStepperModule,
     MatButton,
-    RouterLink
-  ],
+    RouterLink,
+    MatCheckboxModule,
+    CheckoutDeliveryComponent
+],
   templateUrl: './checkout.component.html',
   styleUrl: './checkout.component.scss'
 })
 export class CheckoutComponent {
 
   addressElement?: StripeAddressElement;
+  cardElement?: StripeCardElement;
+  saveAddress: boolean = false;
 
   constructor(
     private stripeService: StripeService,
-    private snackbarService: SnackbarService
+    private snackbarService: SnackbarService,
+    private accountService: AccountService
   ) {}
 
   async ngOnInit() {
     try {
       this.addressElement = await this.stripeService.createAddressElement();
       this.addressElement.mount("#address-element");
+
     } catch (error: any) {
       this.snackbarService.error(error.message);
     }
+  }
+
+  onSaveAddressCheckboxChange(event: MatCheckboxChange) {
+    this.saveAddress = event.checked;
+  }
+
+  async onSelectionChange(event: StepperSelectionEvent) {
+    if(event.selectedIndex === 1) {
+      if(this.saveAddress) {
+        const address = await this.getAddressFromStripeAddress();
+        address && firstValueFrom(this.accountService.updateAddress(address));
+      }
+    }
+  }
+
+  async getAddressFromStripeAddress(): Promise<Address | null> {
+    const result = await this.addressElement?.getValue();
+    const address = result?.value.address;
+
+    if(address) {
+      return {
+        line1: address?.line1,
+        line2: address?.line2 || undefined,
+        city: address?.city,
+        state: address?.state,
+        country: address?.country,
+        postalCode: address?.postal_code
+      };
+    }
+    else return null;
+  }
+
+  ngOnDestroy() {
+    this.stripeService.disposeElements();
   }
 }

@@ -17,7 +17,7 @@ namespace API.Controllers
             return Ok(cart);
         }
 
-        [HttpGet("devlivery-methods")]
+        [HttpGet("delivery-methods")]
         public async Task<ActionResult<IReadOnlyList<DeliveryMethod>>> GetDeliveryMethods()
         {
             return Ok(await dmRepo.ListAllAsync());
