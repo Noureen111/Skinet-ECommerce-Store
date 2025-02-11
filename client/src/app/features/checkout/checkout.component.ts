@@ -5,7 +5,7 @@ import { MatButton } from '@angular/material/button';
 import { RouterLink } from '@angular/router';
 import { StripeService } from '../../core/services/stripe.service';
 import { SnackbarService } from '../../core/services/snackbar.service';
-import { StripeAddressElement, StripeCardElement } from '@stripe/stripe-js';
+import { StripeAddressElement, StripeCardElement, StripePaymentElement } from '@stripe/stripe-js';
 import { MatCheckboxChange, MatCheckboxModule } from '@angular/material/checkbox';
 import { StepperSelectionEvent } from '@angular/cdk/stepper';
 import { Address } from '../../shared/models/User';
@@ -30,6 +30,7 @@ import { CheckoutDeliveryComponent } from "./checkout-delivery/checkout-delivery
 export class CheckoutComponent {
 
   addressElement?: StripeAddressElement;
+  paymentElement?: StripePaymentElement;
   cardElement?: StripeCardElement;
   saveAddress: boolean = false;
 
@@ -44,6 +45,8 @@ export class CheckoutComponent {
       this.addressElement = await this.stripeService.createAddressElement();
       this.addressElement.mount("#address-element");
 
+      this.paymentElement = await this.stripeService.createPaymentElement();
+      this.paymentElement.mount("#payment-element");
     } catch (error: any) {
       this.snackbarService.error(error.message);
     }
