@@ -31,7 +31,11 @@
                 </div>
             </mat-step>
             <mat-step label="Confirmation">
-                Review Form
+                <app-checkout-review></app-checkout-review>
+                <div class="flex justify-between mt-6">
+                    <button color="primary" matStepperPrevious mat-stroked-button>Back</button>
+                    <button color="primary" matStepperNext mat-flat-button>Pay {{cartService.totals()?.total| currency}}</button>
+                </div>
             </mat-step>
         </mat-stepper>
     </div>
