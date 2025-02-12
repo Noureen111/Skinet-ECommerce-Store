@@ -1,11 +1,11 @@
-import { Component } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { OrderSummaryComponent } from "../../shared/components/order-summary/order-summary.component";
 import {MatStepperModule} from '@angular/material/stepper';
 import { MatButton } from '@angular/material/button';
 import { RouterLink } from '@angular/router';
 import { StripeService } from '../../core/services/stripe.service';
 import { SnackbarService } from '../../core/services/snackbar.service';
-import { StripeAddressElement, StripeCardElement, StripePaymentElement } from '@stripe/stripe-js';
+import { StripeAddressElement, StripeAddressElementChangeEvent, StripeCardElement, StripePaymentElement, StripePaymentElementChangeEvent } from '@stripe/stripe-js';
 import { MatCheckboxChange, MatCheckboxModule } from '@angular/material/checkbox';
 import { StepperSelectionEvent } from '@angular/cdk/stepper';
 import { Address } from '../../shared/models/User';
@@ -13,7 +13,7 @@ import { AccountService } from '../../core/services/account.service';
 import { firstValueFrom } from 'rxjs';
 import { CheckoutDeliveryComponent } from "./checkout-delivery/checkout-delivery.component";
 import { CheckoutReviewComponent } from "./checkout-review/checkout-review.component";
-import { CurrencyPipe } from '@angular/common';
+import { CurrencyPipe, JsonPipe } from '@angular/common';
 import { CartService } from '../../core/services/cart.service';
 
 @Component({
@@ -27,7 +27,8 @@ import { CartService } from '../../core/services/cart.service';
     MatCheckboxModule,
     CheckoutDeliveryComponent,
     CheckoutReviewComponent,
-    CurrencyPipe
+    CurrencyPipe,
+    JsonPipe
 ],
   templateUrl: './checkout.component.html',
   styleUrl: './checkout.component.scss'
@@ -38,6 +39,7 @@ export class CheckoutComponent {
   paymentElement?: StripePaymentElement;
   cardElement?: StripeCardElement;
   saveAddress: boolean = false;
+  completionStatus = signal<{address: boolean, card: boolean, delivery: boolean}>({address: false, card: false, delivery: false});
 
   constructor(
     private stripeService: StripeService,
@@ -50,12 +52,36 @@ export class CheckoutComponent {
     try {
       this.addressElement = await this.stripeService.createAddressElement();
       this.addressElement.mount("#address-element");
+      this.addressElement.on("change", this.handleAddressChange);
 
       this.paymentElement = await this.stripeService.createPaymentElement();
       this.paymentElement.mount("#payment-element");
+      this.paymentElement.on("change", this.handlePaymentChange);
+
     } catch (error: any) {
       this.snackbarService.error(error.message);
     }
+  }
+
+  handleAddressChange = (event: StripeAddressElementChangeEvent) => {
+    this.completionStatus.update(state => {
+      state.address = event.complete;
+      return state;
+    })
+  }
+
+  handlePaymentChange = (event: StripePaymentElementChangeEvent) => {
+    this.completionStatus.update(state => {
+      state.card = event.complete;
+      return state;
+    })
+  }
+
+  handleDeliveryChange(event: boolean) {
+    this.completionStatus.update(state => {
+      state.delivery = event;
+      return state;
+    })
   }
 
   onSaveAddressCheckboxChange(event: MatCheckboxChange) {

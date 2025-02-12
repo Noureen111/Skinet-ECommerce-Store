@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, output } from '@angular/core';
 import { CheckoutService } from '../../../core/services/checkout.service';
 import {MatRadioModule} from '@angular/material/radio';
 import { CurrencyPipe } from '@angular/common';
@@ -17,6 +17,8 @@ import { DeliveryMethod } from '../../../shared/models/deliveryMethod';
 })
 export class CheckoutDeliveryComponent {
 
+  deliveryComplete = output<boolean>();
+
   constructor(
     public checkoutService: CheckoutService,
     public cartService: CartService
@@ -29,6 +31,7 @@ export class CheckoutDeliveryComponent {
           const method = methods.find(x => x.id === this.cartService.cart()?.deliveryMethodId);
           if(method) {
             this.cartService.selectedDelivery.set(method);
+            this.deliveryComplete.emit(true);
           }
         }
       }
@@ -41,6 +44,7 @@ export class CheckoutDeliveryComponent {
     if(cart) {
       cart.deliveryMethodId = method.id;
       this.cartService.setCart(cart);
+      this.deliveryComplete.emit(true);
     }
   }
 }
