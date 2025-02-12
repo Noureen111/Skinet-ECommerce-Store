@@ -125,6 +125,19 @@ export class StripeService {
     )
   }
 
+  async createConfirmationToken() {
+    const stripe = await this.getStripeInstance();
+    const elements = await this.initializeElements();
+    const result = elements.submit();
+    if((await result).error) throw new Error((await result).error?.message);
+
+    if(stripe) {
+      return await stripe.createConfirmationToken({elements});
+    } else {
+      throw new Error("Stripe not available");
+    }
+  }
+
   disposeElements() {
     this.elements = undefined;
     this.addressElement = undefined;
