@@ -5,7 +5,7 @@ import { MatButton } from '@angular/material/button';
 import { RouterLink } from '@angular/router';
 import { StripeService } from '../../core/services/stripe.service';
 import { SnackbarService } from '../../core/services/snackbar.service';
-import { StripeAddressElement, StripeAddressElementChangeEvent, StripeCardElement, StripePaymentElement, StripePaymentElementChangeEvent } from '@stripe/stripe-js';
+import { ConfirmationToken, StripeAddressElement, StripeAddressElementChangeEvent, StripeCardElement, StripePaymentElement, StripePaymentElementChangeEvent } from '@stripe/stripe-js';
 import { MatCheckboxChange, MatCheckboxModule } from '@angular/material/checkbox';
 import { StepperSelectionEvent } from '@angular/cdk/stepper';
 import { Address } from '../../shared/models/User';
@@ -38,6 +38,7 @@ export class CheckoutComponent {
   addressElement?: StripeAddressElement;
   paymentElement?: StripePaymentElement;
   cardElement?: StripeCardElement;
+  confirmationToken?: ConfirmationToken;
   saveAddress: boolean = false;
   completionStatus = signal<{address: boolean, card: boolean, delivery: boolean}>({address: false, card: false, delivery: false});
 
@@ -84,6 +85,20 @@ export class CheckoutComponent {
     })
   }
 
+  async getConfirmationToken() {
+    try {
+      if(Object.values(this.completionStatus()).every(status => status === true)) {
+        const result = await this.stripeService.createConfirmationToken();
+        if(result.error) throw new Error(result.error.message);
+        this.confirmationToken = result.confirmationToken;
+        console.log(this.confirmationToken);
+      }
+    } 
+    catch (error: any) {
+      this.snackbarService.error(error.message);
+    }
+  }
+
   onSaveAddressCheckboxChange(event: MatCheckboxChange) {
     this.saveAddress = event.checked;
   }
@@ -94,6 +109,9 @@ export class CheckoutComponent {
         const address = await this.getAddressFromStripeAddress();
         address && firstValueFrom(this.accountService.updateAddress(address));
       }
+    }
+    if(event.selectedIndex === 3) {
+      await this.getConfirmationToken();
     }
   }
 
