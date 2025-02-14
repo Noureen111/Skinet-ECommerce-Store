@@ -1,4 +1,4 @@
-import { Component, output } from '@angular/core';
+import { Component, Output, output } from '@angular/core';
 import { CheckoutService } from '../../../core/services/checkout.service';
 import {MatRadioModule} from '@angular/material/radio';
 import { CurrencyPipe } from '@angular/common';
@@ -18,6 +18,7 @@ import { DeliveryMethod } from '../../../shared/models/deliveryMethod';
 export class CheckoutDeliveryComponent {
 
   deliveryComplete = output<boolean>();
+  // @Output() test: string = "";
 
   constructor(
     public checkoutService: CheckoutService,

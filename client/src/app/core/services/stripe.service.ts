@@ -146,7 +146,7 @@ export class StripeService {
 
     const clientSecret = this.cartService.cart()?.clientSecret;
     if(stripe && clientSecret) {
-      await stripe.confirmPayment({
+      return await stripe.confirmPayment({
         clientSecret: clientSecret,
         confirmParams: {
           confirmation_token: confirmationToken.id
