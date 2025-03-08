@@ -59,10 +59,10 @@ namespace Infrastructure.Data
             return await ApplySpecification(spec).ToListAsync();
         }
 
-        public async Task<bool> SaveAllAsync()
-        {
-            return await context.SaveChangesAsync() > 0;
-        }
+        //public async Task<bool> SaveAllAsync()  // Removing it because now will use Unit of work that contains Complete() method.
+        //{
+        //    return await context.SaveChangesAsync() > 0;
+        //}
 
         public void Update(T entity)
         {

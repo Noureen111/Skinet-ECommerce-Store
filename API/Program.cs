@@ -40,6 +40,7 @@ namespace API
 
             builder.Services.AddScoped<IProductRepository, ProductRepository>();
             builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>)); //dependancy injection of generic services.
+            builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
             builder.Services.AddScoped<IPaymentService, PaymentService>();
             builder.Services.AddCors();
 
