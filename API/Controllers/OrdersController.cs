@@ -86,8 +86,7 @@ namespace API.Controllers
             Order? order = await unit.Repository<Order>().GetEntityWithSpec(spec);
             if (order == null) return NotFound();
 
-            var orderToReturn = order.ToDto();
-            return orderToReturn;
+            return order.ToDto();
         }
     }
 }
