@@ -5,7 +5,7 @@ import { MatButton } from '@angular/material/button';
 import { Router, RouterLink } from '@angular/router';
 import { StripeService } from '../../core/services/stripe.service';
 import { SnackbarService } from '../../core/services/snackbar.service';
-import { ConfirmationToken, StripeAddressElement, StripeAddressElementChangeEvent, StripeCardElement, StripePaymentElement, StripePaymentElementChangeEvent } from '@stripe/stripe-js';
+import { ConfirmationToken, ShippingAddress, StripeAddressElement, StripeAddressElementChangeEvent, StripeCardElement, StripePaymentElement, StripePaymentElementChangeEvent } from '@stripe/stripe-js';
 import { MatCheckboxChange, MatCheckboxModule } from '@angular/material/checkbox';
 import { StepperSelectionEvent } from '@angular/cdk/stepper';
 import { Address } from '../../shared/models/User';
@@ -16,6 +16,7 @@ import { CheckoutReviewComponent } from "./checkout-review/checkout-review.compo
 import { CurrencyPipe, JsonPipe } from '@angular/common';
 import { CartService } from '../../core/services/cart.service';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { OrderToCreate } from '../../shared/models/order';
 
 
 @Component({
@@ -110,7 +111,7 @@ export class CheckoutComponent {
   async onSelectionChange(event: StepperSelectionEvent) {
     if(event.selectedIndex === 1) {
       if(this.saveAddress) {
-        const address = await this.getAddressFromStripeAddress();
+        const address = await this.getAddressFromStripeAddress() as Address;
         address && firstValueFrom(this.accountService.updateAddress(address));
       }
     }
@@ -139,12 +140,33 @@ export class CheckoutComponent {
     }
   }
 
-  async getAddressFromStripeAddress(): Promise<Address | null> {
+  private async createOrderModel() {
+    const cart = this.cartService.cart();
+    const shippingAddress = await this.getAddressFromStripeAddress() as ShippingAddress;
+    const card = this.confirmationToken?.payment_method_preview.card;
+
+    if(!cart?.id || !cart.deliveryMethodId || !card || !shippingAddress) {
+      throw new Error("Problem creating order");
+    }
+
+    const order: OrderToCreate = {
+      cartId: cart.id,
+      paymentSummary: {
+        last4: +card.last4,
+        brand: card.brand,
+        expMonth: card.exp_month,
+        expYear: card.exp_year
+      }
+    }
+  }
+
+  async getAddressFromStripeAddress(): Promise<Address | ShippingAddress | null> {
     const result = await this.addressElement?.getValue();
     const address = result?.value.address;
 
     if(address) {
       return {
+        name: result.value.name,
         line1: address?.line1,
         line2: address?.line2 || undefined,
         city: address?.city,
