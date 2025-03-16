@@ -1,8 +1,7 @@
 import { Injectable } from '@angular/core';
 import { environment } from '../../../environments/environment';
 import { HttpClient } from '@angular/common/http';
-import { OrderToCreate } from '../../shared/models/order';
-import { Order } from '@stripe/stripe-js';
+import { Order, OrderToCreate } from '../../shared/models/order';
 
 @Injectable({
   providedIn: 'root'
@@ -10,6 +9,7 @@ import { Order } from '@stripe/stripe-js';
 export class OrderService {
 
   baseUrl = environment.apiUrl;
+  orderComplete = false;
 
   constructor(private http: HttpClient) { }
 

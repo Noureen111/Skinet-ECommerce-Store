@@ -1,5 +1,6 @@
 
 using API.Middleware;
+using API.SignalR;
 using Core.Entities;
 using Core.Interfaces;
 using Infrastructure.Data;
@@ -43,6 +44,7 @@ namespace API
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
             builder.Services.AddScoped<IPaymentService, PaymentService>();
             builder.Services.AddCors();
+            builder.Services.AddSignalR();
 
             var app = builder.Build();
 
@@ -53,8 +55,12 @@ namespace API
             .WithOrigins("http://localhost:4200","https://localhost:4200")
             );
 
+            app.UseAuthentication();
+            app.UseAuthorization();
+
             app.MapControllers();
             app.MapGroup("api").MapIdentityApi<AppUser>();  //api/register
+            app.MapHub<NotificationHub>("/hub/notifications");
 
             try
             {

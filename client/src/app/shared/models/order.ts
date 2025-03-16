@@ -1,5 +1,5 @@
 
-export interface OrderToCreate {
+export interface Order {
   id: number;
   orderDate: string;
   buyerEmail: string;

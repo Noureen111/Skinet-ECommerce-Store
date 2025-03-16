@@ -5,5 +5,6 @@
         Pending,
         PaymentReceived,
         PaymentFailed,
+        PaymentMismatch,
     }
 }

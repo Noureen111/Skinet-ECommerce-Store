@@ -5,7 +5,7 @@ import { MatButton } from '@angular/material/button';
 import { Router, RouterLink } from '@angular/router';
 import { StripeService } from '../../core/services/stripe.service';
 import { SnackbarService } from '../../core/services/snackbar.service';
-import { ConfirmationToken, ShippingAddress, StripeAddressElement, StripeAddressElementChangeEvent, StripeCardElement, StripePaymentElement, StripePaymentElementChangeEvent } from '@stripe/stripe-js';
+import { ConfirmationToken, StripeAddressElement, StripeAddressElementChangeEvent, StripeCardElement, StripePaymentElement, StripePaymentElementChangeEvent } from '@stripe/stripe-js';
 import { MatCheckboxChange, MatCheckboxModule } from '@angular/material/checkbox';
 import { StepperSelectionEvent } from '@angular/cdk/stepper';
 import { Address } from '../../shared/models/User';
@@ -13,10 +13,11 @@ import { AccountService } from '../../core/services/account.service';
 import { firstValueFrom } from 'rxjs';
 import { CheckoutDeliveryComponent } from "./checkout-delivery/checkout-delivery.component";
 import { CheckoutReviewComponent } from "./checkout-review/checkout-review.component";
-import { CurrencyPipe, JsonPipe } from '@angular/common';
+import { CurrencyPipe } from '@angular/common';
 import { CartService } from '../../core/services/cart.service';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { OrderToCreate } from '../../shared/models/order';
+import { OrderToCreate, ShippingAddress } from '../../shared/models/order';
+import { OrderService } from '../../core/services/order.service';
 
 
 @Component({
@@ -51,7 +52,8 @@ export class CheckoutComponent {
     private snackbarService: SnackbarService,
     private accountService: AccountService,
     public cartService: CartService,
-    private router: Router
+    private router: Router,
+    private orderService: OrderService
   ) {}
 
   async ngOnInit() {
@@ -124,12 +126,27 @@ export class CheckoutComponent {
     this.loading = true;
     try {
       if(this.confirmationToken) {
+        //Make payment
         const result = await this.stripeService.confirmPayment(this.confirmationToken);
-        if(result.error) throw new Error(result.error.message);
-        
-        this.cartService.deleteCart();
-        this.cartService.selectedDelivery.set(null);
-        this.router.navigateByUrl("/checkout/success");
+
+        //If spayment succeeded create order
+        if(result.paymentIntent?.status === 'succeeded') {
+          const order = await this.createOrderModel();
+          const orderResult = await firstValueFrom(this.orderService.createOrder(order));
+
+          //If order created delete cart and navigate
+          if(orderResult) {
+            this.orderService.orderComplete = true;
+            this.cartService.deleteCart();
+            this.cartService.selectedDelivery.set(null);
+            this.router.navigateByUrl("/checkout/success");
+          }
+          else {
+            throw new Error("Order creation failed");
+          }
+        }
+        else if(result.error) throw new Error(result.error.message);
+        else throw new Error("Something went wrong");
       }
     } catch (error: any) {
       this.snackbarService.error(error.message || "Something went wrong");
@@ -140,7 +157,7 @@ export class CheckoutComponent {
     }
   }
 
-  private async createOrderModel() {
+  private async createOrderModel(): Promise<OrderToCreate> {
     const cart = this.cartService.cart();
     const shippingAddress = await this.getAddressFromStripeAddress() as ShippingAddress;
     const card = this.confirmationToken?.payment_method_preview.card;
@@ -149,14 +166,16 @@ export class CheckoutComponent {
       throw new Error("Problem creating order");
     }
 
-    const order: OrderToCreate = {
+    return {
       cartId: cart.id,
       paymentSummary: {
         last4: +card.last4,
         brand: card.brand,
         expMonth: card.exp_month,
         expYear: card.exp_year
-      }
+      },
+      deliveryMethodId: cart.deliveryMethodId,
+      shippingAddress
     }
   }
 

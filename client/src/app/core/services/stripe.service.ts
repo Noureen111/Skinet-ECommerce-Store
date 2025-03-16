@@ -141,7 +141,13 @@ export class StripeService {
   async confirmPayment(confirmationToken: ConfirmationToken) {
     const stripe = await this.getStripeInstance();
     const elements = await this.initializeElements();
+
+    // Ensure latest payment intent and clientSecret before confirming payment
+    const cart = await firstValueFrom(this.createOrUpdatePaymentIntent()); 
+    // const clientSecret = cart.clientSecret; 
+    
     const result = elements.submit();
+    await this.createOrUpdatePaymentIntent();
     if((await result).error) throw new Error((await result).error?.message);
 
     const clientSecret = this.cartService.cart()?.clientSecret;
