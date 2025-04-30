@@ -1,6 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Component } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-test-error',
@@ -13,7 +14,7 @@ import { MatButtonModule } from '@angular/material/button';
 })
 export class TestErrorComponent {
 
-  baseUrl: string = "https://localhost:5001/api/";
+  baseUrl: string = environment.apiUrl;
   validationErrors?: string[];
 
   constructor(

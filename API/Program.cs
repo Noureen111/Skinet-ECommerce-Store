@@ -58,9 +58,13 @@ namespace API
             app.UseAuthentication();
             app.UseAuthorization();
 
+            app.UseDefaultFiles();
+            app.UseStaticFiles();
+
             app.MapControllers();
             app.MapGroup("api").MapIdentityApi<AppUser>();  //api/register
             app.MapHub<NotificationHub>("/hub/notifications");
+            app.MapFallbackToFile("index", "Fallback");
 
             try
             {
