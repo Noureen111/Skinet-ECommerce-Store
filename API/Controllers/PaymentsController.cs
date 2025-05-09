@@ -15,7 +15,7 @@ namespace API.Controllers
     public class PaymentsController(IPaymentService paymentService, IUnitOfWork unit, ILogger<PaymentsController> logger,
         IConfiguration config, IHubContext<NotificationHub> hubContext) : BaseApiController
     {
-        private readonly string _whSecret = "whsec_JDfmvGFyY3Fg6BfRTaicAgZqbWYiqkQG"; //config["StripeSettings:WhSecret"]!;
+        private readonly string _whSecret = config["StripeSettings:WhSecret"]!;
 
         [Authorize]
         [HttpPost("{cartId}")]

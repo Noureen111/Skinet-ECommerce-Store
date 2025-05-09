@@ -38,8 +38,6 @@ export class StripeService {
 
       if(stripe) {
         const cart = await firstValueFrom(this.createOrUpdatePaymentIntent());
-        console.log("Cart: ", cart);
-        
         this.elements = stripe.elements({clientSecret: cart.clientSecret, appearance: {labels: "floating"}});
       }
       else {
@@ -123,6 +121,7 @@ export class StripeService {
     return this.http.post<Cart>(this.baseUrl + "payments/" + cart.id, {}).pipe(
       map(cart => {
         this.cartService.cart.set(cart);
+        console.log("Cart: ", cart);
         return cart;
       })
     )
