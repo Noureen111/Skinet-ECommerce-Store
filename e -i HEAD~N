@@ -1,0 +1,70 @@
+[33m4d40cad[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m)[m update nnn
+[33m23cc674[m[33m ([m[1;31morigin/main[m[33m)[m corrected configuration key
+[33m0810772[m uncommented code
+[33m270b32e[m Merge branch 'main' of https://github.com/Noureen111/Skinet-ECommerce-Store
+[33mac4bbde[m test change
+[33m087cdca[m Add or update the Azure App Service build and deployment workflow config
+[33m4b60ca0[m resoolved conflicts
+[33m740f171[m Add or update the Azure App Service build and deployment workflow config
+[33m72a80cf[m Merge branch 'main' of https://github.com/Qais00012/Skinet
+[33mdd72f27[m environment variable changed
+[33m5c91bae[m Add or update the Azure App Service build and deployment workflow config
+[33m9457ae4[m updated for deployment
+[33md574cc8[m orders
+[33mb12fcd6[m order
+[33m3908367[m order service
+[33m1d83ce4[m order & eager loading
+[33m164ada3[m order & eager loading
+[33mfe6eb9d[m Unit of Work implementation
+[33m27a1c0f[m orders
+[33md49d2a7[m orders
+[33mf0100ae[m order
+[33m5459952[m payment
+[33m900c611[m payment
+[33m3a51229[m payment
+[33mfd23b9d[m payment
+[33m844a201[m payment
+[33mc4f021a[m payment
+[33mac03eae[m checkout delivery
+[33m08b3b59[m stripe
+[33mf193793[m checkout
+[33m34518e2[m payment controller
+[33m304e3e0[m payment service
+[33m7e2815f[m removed keys
+[33m014e16a[m stripe credentials
+[33m1d2c53d[m Stripe - db configuration
+[33m243d726[m identity
+[33mdcd799f[m emty state
+[33m74e0994[m guards and interceptor
+[33m738b183[m Account
+[33m5545b6d[m login
+[33m6a42cef[m account
+[33m52a830e[m account
+[33m512dd0d[m Identity
+[33m432b03a[m endpoint added in buggy controller
+[33m1be1e6d[m typing mistake resolved
+[33m8fb7d94[m identity
+[33m1119664[m spelling correction
+[33m197c773[m idetity
+[33m019730d[m cart functionality done
+[33m97dd6e5[m cart and order summary
+[33me0c9337[m cart count
+[33m3206e20[m app initializer
+[33m51756a0[m removed debuggers
+[33m23e7060[m added carts to redis
+[33m58cca4e[m cart service methods
+[33mdd75d6a[m environments added
+[33m78c52f5[m redis config done
+[33mbc68343[m loader and error handling frontend
+[33mdd3b7c6[m product detail
+[33m153be5a[m pagination and serach on frontend
+[33maa2c003[m sort applied
+[33m8a6a68b[m frontend filters done
+[33m39f92c4[m client created
+[33me105677[m Angular setup done
+[33m58cd3f8[m Error handling
+[33mfcfb000[m filters and search
+[33m3bafdf4[m Filter and sorting applied
+[33me01c5fb[m specfication pattern started
+[33m978dc18[m Api Architecture
+[33m07db6c3[m crud done
