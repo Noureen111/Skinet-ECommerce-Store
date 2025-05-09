@@ -34,6 +34,7 @@ namespace API.Controllers
         }
 
         [HttpPost("webhook")]
+        [AllowAnonymous]
         public async Task<ActionResult> StripeWebhook()
         {
             var json = await new StreamReader(Request.Body).ReadToEndAsync();
@@ -41,24 +42,35 @@ namespace API.Controllers
             {
                 var stripeEvent = ConstructStripeEvent(json);
 
-                if (stripeEvent.Data.Object is not PaymentIntent intent) 
-                    return BadRequest("Invalid event data");
+                // Handle different event types explicitly
+                if (stripeEvent.Type == "payment_intent.succeeded")
+                {
+                    var intent = stripeEvent.Data.Object as PaymentIntent;
+                    if (intent == null)
+                        return BadRequest("Invalid PaymentIntent data");
 
-                await HandlePaymentIntentSucceeded(intent);
+                    await HandlePaymentIntentSucceeded(intent);
+                }
+                else
+                {
+                    // Log or handle other events if needed
+                    logger.LogInformation($"Unhandled Stripe event type: {stripeEvent.Type}");
+                }
 
                 return Ok();
             }
             catch (StripeException ex)
             {
-                logger.LogError("Stripe webhook error");
+                logger.LogError(ex, "Stripe webhook error");
                 return StatusCode(StatusCodes.Status500InternalServerError, "Stripe webhook error");
             }
             catch (Exception ex)
             {
-                logger.LogError("An unexpected error occurred");
+                logger.LogError(ex, "An unexpected error occurred");
                 return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred");
             }
         }
+
 
         private Event ConstructStripeEvent(string json)
         {
