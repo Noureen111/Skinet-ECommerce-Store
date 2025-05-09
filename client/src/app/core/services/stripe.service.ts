@@ -32,12 +32,14 @@ export class StripeService {
   }
 
   async initializeElements() {
-    debugger
+    
     if(!this.elements) {
       const stripe = await this.getStripeInstance();
 
       if(stripe) {
         const cart = await firstValueFrom(this.createOrUpdatePaymentIntent());
+        console.log("Cart: ", cart);
+        
         this.elements = stripe.elements({clientSecret: cart.clientSecret, appearance: {labels: "floating"}});
       }
       else {
