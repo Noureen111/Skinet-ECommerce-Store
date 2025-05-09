@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { ChangeDetectorRef, Component, signal, ViewChild } from '@angular/core';
 import { OrderSummaryComponent } from "../../shared/components/order-summary/order-summary.component";
 import {MatStepper, MatStepperModule} from '@angular/material/stepper';
 import { MatButton } from '@angular/material/button';
@@ -39,6 +39,8 @@ import { OrderService } from '../../core/services/order.service';
 })
 export class CheckoutComponent {
 
+  @ViewChild('stepper') stepper!: MatStepper;
+
   addressElement?: StripeAddressElement;
   paymentElement?: StripePaymentElement;
   cardElement?: StripeCardElement;
@@ -47,13 +49,18 @@ export class CheckoutComponent {
   loading: boolean = false;
   completionStatus = signal<{address: boolean, card: boolean, delivery: boolean}>({address: false, card: false, delivery: false});
 
+  addressElementMounted = false;
+  paymentElementMounted = false;
+
+
   constructor(
     private stripeService: StripeService,
     private snackbarService: SnackbarService,
     private accountService: AccountService,
     public cartService: CartService,
     private router: Router,
-    private orderService: OrderService
+    private orderService: OrderService,
+    private cdRef: ChangeDetectorRef
   ) {}
 
   async ngOnInit() {
@@ -61,15 +68,25 @@ export class CheckoutComponent {
       this.addressElement = await this.stripeService.createAddressElement();
       this.addressElement.mount("#address-element");
       this.addressElement.on("change", this.handleAddressChange);
-
-      this.paymentElement = await this.stripeService.createPaymentElement();
-      this.paymentElement.mount("#payment-element");
-      this.paymentElement.on("change", this.handlePaymentChange);
-
+  
+      // Wait for Angular to finish detecting changes
+      this.cdRef.detectChanges();
     } catch (error: any) {
       this.snackbarService.error(error.message);
     }
   }
+
+  //in case didn't mounted, as mat elements take time in rendering and that's why address element was not being appeared.
+  async ngAfterViewInit() {
+    try {
+      this.addressElement = await this.stripeService.createAddressElement();
+      this.addressElement.mount("#address-element");
+      this.addressElement.on("change", this.handleAddressChange);
+    } catch (error: any) {
+      this.snackbarService.error(error.message);
+    }
+  }
+  
 
   handleAddressChange = (event: StripeAddressElementChangeEvent) => {
     this.completionStatus.update(state => {
@@ -110,17 +127,43 @@ export class CheckoutComponent {
     this.saveAddress = event.checked;
   }
 
+  // async onSelectionChange(event: StepperSelectionEvent) {
+  //   if(event.selectedIndex === 1) {
+  //     if(this.saveAddress) {
+  //       const address = await this.getAddressFromStripeAddress() as Address;
+  //       address && firstValueFrom(this.accountService.updateAddress(address));
+  //     }
+  //   }
+  //   if(event.selectedIndex === 3) {
+  //     await this.getConfirmationToken();
+  //   }
+  // }
+
   async onSelectionChange(event: StepperSelectionEvent) {
-    if(event.selectedIndex === 1) {
-      if(this.saveAddress) {
-        const address = await this.getAddressFromStripeAddress() as Address;
-        address && firstValueFrom(this.accountService.updateAddress(address));
-      }
+    if (event.selectedIndex === 0 && !this.addressElementMounted) {
+      this.addressElement = await this.stripeService.createAddressElement();
+      this.addressElement.mount("#address-element");
+      this.addressElement.on("change", this.handleAddressChange);
+      this.addressElementMounted = true;
     }
-    if(event.selectedIndex === 3) {
+  
+    if (event.selectedIndex === 2 && !this.paymentElementMounted) {
+      this.paymentElement = await this.stripeService.createPaymentElement();
+      this.paymentElement.mount("#payment-element");
+      this.paymentElement.on("change", this.handlePaymentChange);
+      this.paymentElementMounted = true;
+    }
+  
+    if (event.selectedIndex === 1 && this.saveAddress) {
+      const address = await this.getAddressFromStripeAddress() as Address;
+      address && firstValueFrom(this.accountService.updateAddress(address));
+    }
+  
+    if (event.selectedIndex === 3) {
       await this.getConfirmationToken();
     }
   }
+  
 
   async confirmPayment(stepper: MatStepper) {
     this.loading = true;

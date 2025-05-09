@@ -32,6 +32,7 @@ export class StripeService {
   }
 
   async initializeElements() {
+    debugger
     if(!this.elements) {
       const stripe = await this.getStripeInstance();
 
