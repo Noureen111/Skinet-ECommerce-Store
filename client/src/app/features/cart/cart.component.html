@@ -1,7 +1,11 @@
 
 <section>
     @if(cartService.cart() == null || cartService.cart()?.items?.length == 0) {
-        <app-empty-state></app-empty-state>
+        <app-empty-state 
+            message="Your shopping cart is empty"
+            icon="remove_shopping_cart"
+            actionText="Go to shopping"
+            (action)="onAction()" />
     } @else {
         <div class="flex w-full items-start gap-6 mt-32">
             <div class="w-3/4">
