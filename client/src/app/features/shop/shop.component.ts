@@ -70,7 +70,6 @@ export class ShopComponent {
   }
 
   onSearchChange() {
-    debugger
     this.shopParams.pageNumber = 1;
     this.getProducts();
   }
