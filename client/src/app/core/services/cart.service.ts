@@ -1,7 +1,7 @@
 import { computed, Injectable, signal } from '@angular/core';
 import { environment } from '../../../environments/environment';
 import { HttpClient } from '@angular/common/http';
-import { Cart, CartItem } from '../../shared/models/cart';
+import { Cart, CartItem, Coupon } from '../../shared/models/cart';
 import { Product } from '../../shared/models/product';
 import { firstValueFrom, map, tap } from 'rxjs';
 import { DeliveryMethod } from '../../shared/models/deliveryMethod';
@@ -12,8 +12,12 @@ import { DeliveryMethod } from '../../shared/models/deliveryMethod';
 export class CartService {
 
   baseUrl = environment.apiUrl;
+  isCouponApplied: boolean = false;
+  isShowCoupon: boolean = false;
+  couponName: string = '';
   cart = signal<Cart | null>(null);
   selectedDelivery = signal<DeliveryMethod | null>(null);
+  coupon = signal<Coupon | null>(null);
   itemCount = computed(() => {
     return this.cart()?.items.reduce((sum: number, item: CartItem) => sum + item.quantity, 0);
   });
@@ -21,15 +25,30 @@ export class CartService {
   totals = computed(() => {
     const cart = this.cart();
     const delivery = this.selectedDelivery();
-    if(!cart) return null;
-    const subtotal = cart.items.reduce((sum: number, item: CartItem) => sum + item.price * item.quantity, 0);
+    const coupon = this.coupon();
+    
+    if (!cart) return null;
+    
+    const subtotal = cart.items.reduce((sum, item) => 
+    sum + item.price * item.quantity, 0);
+    
+    let discountValue = 0;
+    
+    if (cart.coupon) {
+      if (cart.coupon.amountOff) {
+        discountValue = cart.coupon.amountOff;
+      } else if (cart.coupon.percentOff) {
+        discountValue = subtotal * (cart.coupon.percentOff / 100);
+      }
+    }
     const shipping = delivery ? delivery?.price : 0;
-    const discount = 0;
+    const total = subtotal + shipping - discountValue;
+
     return {
       subtotal,
       shipping,
-      discount,
-      total: subtotal + shipping - discount
+      discount: discountValue,
+      total
     };
   })
 
@@ -127,6 +146,14 @@ export class CartService {
     const cart = new Cart();
     localStorage.setItem("cart_id", cart.id);
     return cart;
+  }
+
+  applyDiscount(code: string) {
+    return this.httpClient.get<Coupon>(this.baseUrl + 'coupons/' + code);
+  }
+
+  resetCoupon() {
+    this.cart.update(cart => cart ? { ...cart, coupon: undefined } : cart);
   }
 }
 

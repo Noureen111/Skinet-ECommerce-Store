@@ -23,6 +23,10 @@ export class CartComponent {
     public router: Router
   ) { }
 
+  ngOnInit() {
+    this.cartService.isShowCoupon = false;
+  }
+
   onAction() {
     this.router.navigateByUrl("/shop");
   }

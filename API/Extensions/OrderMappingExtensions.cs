@@ -17,6 +17,7 @@ namespace API.Extensions
                 DeliveryMethod = order.DeliveryMethod.Description,
                 ShippingPrice = order.DeliveryMethod.Price,
                 OrderItems = order.OrderItems.Select(x => x.ToDto()).ToList(),
+                Discount = order.Discount,
                 Subtotal = order.Subtotal,
                 Total = order.GetTotal(),
                 Status = order.Status.ToString(),

@@ -18,6 +18,7 @@ import { CartService } from '../../core/services/cart.service';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { OrderToCreate, ShippingAddress } from '../../shared/models/order';
 import { OrderService } from '../../core/services/order.service';
+import { Cart } from '../../shared/models/cart';
 
 
 @Component({
@@ -85,6 +86,13 @@ export class CheckoutComponent {
     } catch (error: any) {
       this.snackbarService.error(error.message);
     }
+
+    if(this.cartService.isCouponApplied) {
+      const cart = this.cartService.cart();
+      this.cartService.coupon.set(cart?.coupon ?? null);
+    }
+
+    this.cartService.isShowCoupon = true;
   }
   
 
@@ -182,6 +190,15 @@ export class CheckoutComponent {
             this.orderService.orderComplete = true;
             this.cartService.deleteCart();
             this.cartService.selectedDelivery.set(null);
+            
+            const cart = this.cartService.cart();
+            this.cartService.isShowCoupon = false;
+            this.cartService.setCart(cart ?? new Cart());
+            this.cartService.coupon.set(null);
+            this.cartService.isCouponApplied = false;
+            this.cartService.couponName = '';
+            this.cartService.resetCoupon();
+
             this.router.navigateByUrl("/checkout/success");
           }
           else {
@@ -203,11 +220,15 @@ export class CheckoutComponent {
   private async createOrderModel(): Promise<OrderToCreate> {
     const cart = this.cartService.cart();
     const shippingAddress = await this.getAddressFromStripeAddress() as ShippingAddress;
-    const card = this.confirmationToken?.payment_method_preview.card;
 
-    if(!cart?.id || !cart.deliveryMethodId || !card || !shippingAddress) {
-      throw new Error("Problem creating order");
+    debugger
+    
+    const card = this.confirmationToken?.payment_method_preview.card;
+    if (!cart?.id || !cart.deliveryMethodId || !card || !shippingAddress) {
+      throw new Error('Problem creating order');
     }
+
+
 
     return {
       cartId: cart.id,
@@ -218,7 +239,8 @@ export class CheckoutComponent {
         expYear: card.exp_year
       },
       deliveryMethodId: cart.deliveryMethodId,
-      shippingAddress
+      shippingAddress,
+      discount: this.cartService.totals()?.discount
     }
   }
 

@@ -7,6 +7,7 @@ import { MatButton } from '@angular/material/button';
 import { CurrencyPipe, DatePipe } from '@angular/common';
 import { AddressPipe } from "../../../shared/pipes/address.pipe";
 import { PaymentCardPipe } from "../../../shared/pipes/payment-card.pipe";
+import { CartService } from '../../../core/services/cart.service';
 
 @Component({
   selector: 'app-order-detailed',
@@ -29,7 +30,8 @@ export class OrderDetailedComponent {
 
   constructor(
     private orderService: OrderService,
-    private activatedRoute: ActivatedRoute
+    private activatedRoute: ActivatedRoute,
+    public cartService: CartService
   ) {}
 
   ngOnInit() {

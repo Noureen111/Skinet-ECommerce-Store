@@ -1,18 +1,19 @@
 
 export interface Order {
-  id: number;
-  orderDate: string;
-  buyerEmail: string;
-  shippingAddress: ShippingAddress;
-  deliveryMethod: string;
-  shippingPrice: number;
-  paymentSummary: PaymentSummary;
-  orderItems: OrderItem[];
-  subtotal: number;
-  total: number;
-  status: string;
-  paymentIntentId: string;
-}
+    id: number
+    orderDate: string
+    buyerEmail: string
+    shippingAddress: ShippingAddress
+    deliveryMethod: string
+    shippingPrice: number
+    paymentSummary: PaymentSummary
+    orderItems: OrderItem[]
+    subtotal: number
+    discount?: number
+    status: string
+    total: number
+    paymentIntentId: string
+  }
 
 export interface ShippingAddress {
   name: string;
@@ -39,9 +40,10 @@ export interface OrderItem {
   quantity: number;
 }
 
-export interface OrderToCreate {
+ export interface OrderToCreate {
     cartId: string;
     deliveryMethodId: number;
     shippingAddress: ShippingAddress;
     paymentSummary: PaymentSummary;
-}
+    discount?: number;
+  }

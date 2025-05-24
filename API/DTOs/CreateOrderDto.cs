@@ -16,5 +16,6 @@ namespace API.DTOs
 
         [Required]
         public PaymentSummary PaymentSummary { get; set; } = null!;
+        public decimal Discount { get; set; }
     }
 }
