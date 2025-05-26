@@ -53,7 +53,7 @@
         </div>
     </div>
     
-    <mat-menu #sortMenu="matMenu">
+    <!-- <mat-menu #sortMenu="matMenu">
         <mat-select (selectionChange)="onSortChange($event)">
             @for (sort of sortOptions; track $index) {
                 <mat-option [value]="sort.value" selected="shopParams.sort">
@@ -61,6 +61,15 @@
                 </mat-option>
             }
         </mat-select>
+    </mat-menu> -->
+
+    <mat-menu #sortMenu="matMenu">
+        @for (sort of sortOptions; track $index) {
+        <button mat-menu-item (click)="onSortChange({ value: sort.value })">
+            <mat-icon *ngIf="shopParams.sort === sort.value">check</mat-icon>
+            {{ sort.name }}
+        </button>
+        }
     </mat-menu>
 }
 @else {

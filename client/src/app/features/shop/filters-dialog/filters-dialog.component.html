@@ -1,26 +1,36 @@
 <div>
-    <h3 class="text-3xl text-center pt-6 mb-3">Filters</h3>
-    <mat-divider></mat-divider>
+  <h3 class="text-3xl text-center pt-6 mb-3">Filters</h3>
+  <mat-divider></mat-divider>
+
     <div class="flex p-4">
+        <!-- Brands -->
         <div class="w-1/2">
-            <h4 class="font-semibold text-xl text-primary">Brands</h4>
-            <mat-select [(ngModel)]="selectedBrands" multiple>
+            <h4 class="font-semibold text-xl text-primary mb-2">Brands</h4>
+            <div class="flex flex-col gap-2 max-h-68 pr-2">
                 @for (brand of shopService.brands; track $index) {
-                    <mat-option [value]="brand">{{brand}}</mat-option>
+                <mat-checkbox [checked]="selectedBrands.includes(brand)"
+                    (change)="toggleSelection(selectedBrands, brand, $event.checked)">
+                    {{ brand }}
+                </mat-checkbox>
                 }
-            </mat-select>
+            </div>
         </div>
 
+        <!-- Types -->
         <div class="w-1/2">
-            <h4 class="font-semibold text-xl text-primary">Types</h4>
-            <mat-select [(ngModel)]="selectedTypes" multiple>
+            <h4 class="font-semibold text-xl text-primary m-b">Types</h4>
+            <div class="flex flex-col gap-2 max-h-68 pr-2">
                 @for (type of shopService.types; track $index) {
-                    <mat-option [value]="type">{{type}}</mat-option>
+                <mat-checkbox [checked]="selectedTypes.includes(type)"
+                    (change)="toggleSelection(selectedTypes, type, $event.checked)">
+                    {{ type }}
+                </mat-checkbox>
                 }
-            </mat-select>
+            </div>
         </div>
     </div>
-    <div class="flex justify-end p-4 mb-2">
-        <button mat-flat-button color="primary" (click)="applyFilters()">Apply Filters</button>
-    </div>
+
+  <div class="flex absolute right-0 bottom-0 justify-end p-1 mb-2">
+    <button mat-flat-button color="primary" (click)="applyFilters()">Apply Filters</button>
+  </div>
 </div>

@@ -81,15 +81,25 @@ export class ShopComponent {
     this.getProducts();
   }
 
-  onSortChange(event: MatSelectChange) {
-    const selectedOption = event.value;
-    if(selectedOption) {
-      this.shopParams.sort = selectedOption;
-      this.shopParams.pageNumber = 1;
-      console.log(selectedOption);
-      this.getProducts(); 
-    }
+  // onSortChange(event: MatSelectChange) {
+  //   const selectedOption = event.value;
+  //   if(selectedOption) {
+  //     this.shopParams.sort = selectedOption;
+  //     this.shopParams.pageNumber = 1;
+  //     console.log(selectedOption);
+  //     this.getProducts(); 
+  //   }
+  // }
+
+  onSortChange(event: { value: string }) {
+  const selectedOption = event.value;
+  if (selectedOption) {
+    this.shopParams.sort = selectedOption;
+    this.shopParams.pageNumber = 1;
+    console.log(selectedOption);
+    this.getProducts(); 
   }
+}
 
   openFiltersDialog() {
     const dialogRef = this.dialogService.open(FiltersDialogComponent, {
@@ -105,8 +115,8 @@ export class ShopComponent {
       next: result => {
         if(result) {
           console.log(result);
-          this.shopParams.brands = result.selectedTypes;
-          this.shopParams.types = result.selectedBrands;
+          this.shopParams.brands = result.selectedBrands;
+          this.shopParams.types = result.selectedTypes;
           this.shopParams.pageNumber = 1;
           this.getProducts();
         }
